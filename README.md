@@ -182,6 +182,12 @@ The documentation was scraped from the [Alliance Canada wiki](https://docs.allia
 python scrape_wiki.py --all --output docs/
 ```
 
-## License
+## Disclaimer & Attribution
 
-The documentation content is sourced from the [Digital Research Alliance of Canada](https://docs.alliancecan.ca/) wiki. The scraper, skill, and organizational structure in this repo are provided as-is for educational and research purposes.
+The documentation content in `docs/` and `ml-docs/` is sourced from the [Digital Research Alliance of Canada](https://docs.alliancecan.ca/) public wiki. All credit for the original documentation goes to the Alliance and its contributors. This repository is an unofficial community resource created for educational and research purposes to help ML researchers navigate Alliance HPC systems more easily.
+
+**This is not an official Alliance Canada product.** If you need authoritative documentation, please refer to the original wiki at [docs.alliancecan.ca](https://docs.alliancecan.ca/).
+
+The scraper (`scrape_wiki.py`), skill (`alliance-ml-skill/`), README, llms.txt curation, and organizational structure are original work in this repo.
+
+If you are a representative of the Digital Research Alliance of Canada and have concerns about this repository, please open an issue or contact us and we will promptly address them.
