@@ -1,0 +1,150 @@
+# Alliance Canada Technical Documentation
+
+> The Digital Research Alliance of Canada (formerly Compute Canada) provides HPC clusters, cloud resources, and storage for Canadian researchers. This documentation covers cluster access, job scheduling with Slurm, software modules, storage systems, AI/ML workflows, cloud computing, and scientific software across national systems including Narval, Cedar, Graham, Béluga, Niagara, Trillium, Fir, Nibi, Rorqual, and Killarney.
+
+Key facts:
+- Job scheduler: Slurm (sbatch, squeue, sacct)
+- Module system: Lmod (module load, module spider)
+- Python: use virtualenv + Alliance wheels, NOT Anaconda/Conda
+- Storage tiers: home (small, backed up), scratch (large, purged), project (shared, persistent), nearline (archive)
+- GPU nodes available on most clusters (A100, H100, V100)
+- Containers via Apptainer (formerly Singularity)
+- Cloud via OpenStack (Arbutus, Nibi Cloud)
+
+## Clusters & Systems
+
+- [Fir](https://docs.alliancecan.ca/wiki/Fir): Fir cluster at SFU — node specs, storage, access policies
+- [Nibi](https://docs.alliancecan.ca/wiki/Nibi): Nibi cluster — node specs, storage, policies
+- [Narval](https://docs.alliancecan.ca/wiki/Narval): Narval cluster at ETS Montreal — node specs, GPU nodes, storage
+- [Rorqual](https://docs.alliancecan.ca/wiki/Rorqual): Rorqual cluster — node specs, storage, networking
+- [Trillium](https://docs.alliancecan.ca/wiki/Trillium): Trillium cluster at U of T — 1224 CPU + 63 GPU nodes, H100s, specs
+- [Vulcan](https://docs.alliancecan.ca/wiki/Vulcan): Vulcan cluster — node specs, storage, policies
+- [Cedar](https://docs.alliancecan.ca/wiki/Cedar): Cedar cluster at SFU — node specs, GPU nodes, storage
+- [Graham](https://docs.alliancecan.ca/wiki/Graham): Graham cluster at U of Waterloo — node specs, GPU nodes, storage
+- [Niagara](https://docs.alliancecan.ca/wiki/Niagara): Niagara cluster at U of T — large parallel jobs, 80k cores
+- [Arbutus](https://docs.alliancecan.ca/wiki/Arbutus): Arbutus cloud cluster at UVic
+- [National systems](https://docs.alliancecan.ca/wiki/National_systems): Overview of all national HPC systems
+
+## Getting Started
+
+- [Getting Started](https://docs.alliancecan.ca/wiki/Getting_Started): First steps for new users — accounts, SSH, storage, jobs
+- [Apply for a CCDB account](https://docs.alliancecan.ca/wiki/Apply_for_a_CCDB_account): How to register for an Alliance account
+- [SSH](https://docs.alliancecan.ca/wiki/SSH): SSH connection guide — keys, X11, clients
+- [Multifactor authentication](https://docs.alliancecan.ca/wiki/Multifactor_authentication): Setting up MFA for cluster access
+- [Linux introduction](https://docs.alliancecan.ca/wiki/Linux_introduction): Basic Linux/command-line for HPC beginners
+- [What is a scheduler](https://docs.alliancecan.ca/wiki/What_is_a_scheduler): Introduction to job schedulers and Slurm concepts
+
+## Running Jobs (Slurm)
+
+- [Running jobs](https://docs.alliancecan.ca/wiki/Running_jobs): Complete Slurm job submission guide — sbatch, resources, memory, time limits, examples
+- [Job arrays](https://docs.alliancecan.ca/wiki/Job_arrays): Slurm array jobs for parameter sweeps
+- [Using GPUs with SLURM](https://docs.alliancecan.ca/wiki/Using_GPUs_with_SLURM): GPU job submission — gres flags, GPU types, multi-GPU
+- [Monitoring jobs](https://docs.alliancecan.ca/wiki/Monitoring_jobs): squeue, sacct, sstat, email notifications
+- [Advanced MPI scheduling](https://docs.alliancecan.ca/wiki/Advanced_MPI_scheduling): MPI job layouts, hybrid MPI+OpenMP, srun options
+- [GNU Parallel](https://docs.alliancecan.ca/wiki/GNU_Parallel): Running many serial tasks in parallel within one job
+- [META-Farm](https://docs.alliancecan.ca/wiki/META-Farm): META-Farm framework for high-throughput job farming
+
+## Storage & Data
+
+- [Globus](https://docs.alliancecan.ca/wiki/Globus): Globus file transfer service setup and usage
+- [Scratch purging policy](https://docs.alliancecan.ca/wiki/Scratch_purging_policy): Automatic scratch file purging rules
+- [Project Layout](https://docs.alliancecan.ca/wiki/Project_Layout): Project directory structure and group permissions
+- [Archiving and compressing files](https://docs.alliancecan.ca/wiki/Archiving_and_compressing_files): tar, gzip, zip for bundling files
+- [Tuning Lustre](https://docs.alliancecan.ca/wiki/Tuning_Lustre): Lustre filesystem striping and performance tuning
+
+## Software & Modules
+
+- [Available software](https://docs.alliancecan.ca/wiki/Available_software): Complete list of pre-installed software on Alliance clusters
+- [Utiliser des modules](https://docs.alliancecan.ca/wiki/Utiliser_des_modules): Module system (Lmod) — loading, listing, searching software
+- [Standard software environments](https://docs.alliancecan.ca/wiki/Standard_software_environments): StdEnv versions (2023, 2020, etc.) and how to switch
+- [Installing software in your home directory](https://docs.alliancecan.ca/wiki/Installing_software_in_your_home_directory): Compiling and installing your own software
+- [Apptainer](https://docs.alliancecan.ca/wiki/Apptainer): Running containers (Singularity/Apptainer) on clusters
+- [EasyBuild](https://docs.alliancecan.ca/wiki/EasyBuild): EasyBuild for installing software in your account
+
+## Python
+
+- [Python](https://docs.alliancecan.ca/wiki/Python): Python on clusters — virtualenvs, pip, wheels, common issues
+- [Jupyter](https://docs.alliancecan.ca/wiki/Jupyter): Running Jupyter notebooks on clusters
+- [JupyterHub](https://docs.alliancecan.ca/wiki/JupyterHub): JupyterHub web interface for interactive computing
+- [JupyterNotebook](https://docs.alliancecan.ca/wiki/JupyterNotebook): Jupyter Notebook setup and usage
+
+## AI & Machine Learning
+
+- [AI and Machine Learning](https://docs.alliancecan.ca/wiki/AI_and_Machine_Learning): AI/ML overview — frameworks, GPUs, data loading, checkpointing
+- [PyTorch](https://docs.alliancecan.ca/wiki/PyTorch): PyTorch installation, distributed training, GPU usage
+- [TensorFlow](https://docs.alliancecan.ca/wiki/TensorFlow): TensorFlow installation and GPU configuration
+- [CUDA](https://docs.alliancecan.ca/wiki/CUDA): CUDA toolkit — versions, compatibility, compilation
+- [CUDA tutorial](https://docs.alliancecan.ca/wiki/CUDA_tutorial): CUDA programming tutorial — kernels, memory, optimization
+- [Deepspeed](https://docs.alliancecan.ca/wiki/Deepspeed): DeepSpeed for distributed training — ZeRO, pipeline parallelism
+- [Huggingface](https://docs.alliancecan.ca/wiki/Huggingface): HuggingFace Transformers on Alliance clusters
+- [Large Language Models LLMs](https://docs.alliancecan.ca/wiki/Large_Language_Models_LLMs): Running LLMs on clusters — memory, quantization, serving
+- [VLLM](https://docs.alliancecan.ca/wiki/VLLM): vLLM for high-throughput LLM inference serving
+- [AlphaFold2](https://docs.alliancecan.ca/wiki/AlphaFold2): AlphaFold2 protein structure prediction setup and usage
+- [ML Performance Guide](https://docs.alliancecan.ca/wiki/ML_Performance_Guide): When to use GPUs, multi-GPU, profiling ML code
+
+## Programming
+
+- [Programming guide](https://docs.alliancecan.ca/wiki/Programming_guide): Programming languages, compilers, and tools overview
+- [MPI](https://docs.alliancecan.ca/wiki/MPI): MPI programming — compilation, running, common issues
+- [OpenMP](https://docs.alliancecan.ca/wiki/OpenMP): OpenMP shared-memory parallelism guide
+- [Debugging and profiling](https://docs.alliancecan.ca/wiki/Debugging_and_profiling): Overview of debugging and profiling tools
+- [Valgrind](https://docs.alliancecan.ca/wiki/Valgrind): Valgrind memory debugging and profiling
+- [R](https://docs.alliancecan.ca/wiki/R): R on clusters — packages, parallelism, Rmpi
+- [Julia](https://docs.alliancecan.ca/wiki/Julia): Julia on clusters — packages, parallelism, GPU
+- [MATLAB](https://docs.alliancecan.ca/wiki/MATLAB): MATLAB on clusters — licenses, parallel, compiled
+
+## Cloud Computing
+
+- [Cloud](https://docs.alliancecan.ca/wiki/Cloud): Alliance cloud service overview — OpenStack, VMs, networking
+- [Cloud Quick Start](https://docs.alliancecan.ca/wiki/Cloud_Quick_Start): Quick start guide — launching your first VM
+- [Terraform](https://docs.alliancecan.ca/wiki/Terraform): Infrastructure-as-code with Terraform on Alliance cloud
+- [Working with volumes](https://docs.alliancecan.ca/wiki/Working_with_volumes): Creating, attaching, and managing cloud storage volumes
+- [Security considerations when running a VM](https://docs.alliancecan.ca/wiki/Security_considerations_when_running_a_VM): VM security best practices
+
+## Scientific Software
+
+- [GROMACS](https://docs.alliancecan.ca/wiki/GROMACS): GROMACS molecular dynamics — compilation, GPU, examples
+- [LAMMPS](https://docs.alliancecan.ca/wiki/LAMMPS): LAMMPS molecular dynamics setup and job scripts
+- [NAMD](https://docs.alliancecan.ca/wiki/NAMD): NAMD molecular dynamics on clusters
+- [AMBER](https://docs.alliancecan.ca/wiki/AMBER): AMBER molecular dynamics setup and usage
+- [Gaussian](https://docs.alliancecan.ca/wiki/Gaussian): Gaussian quantum chemistry — licenses, job scripts, errors
+- [VASP](https://docs.alliancecan.ca/wiki/VASP): VASP materials simulation — licenses, compilation
+- [ORCA](https://docs.alliancecan.ca/wiki/ORCA): ORCA quantum chemistry setup
+- [Quantum ESPRESSO](https://docs.alliancecan.ca/wiki/Quantum_ESPRESSO): Quantum ESPRESSO for electronic structure calculations
+- [ANSYS](https://docs.alliancecan.ca/wiki/ANSYS): ANSYS engineering simulation on clusters
+- [OpenFOAM](https://docs.alliancecan.ca/wiki/OpenFOAM): OpenFOAM CFD simulation setup
+- [Abaqus](https://docs.alliancecan.ca/wiki/Abaqus): Abaqus FEA simulation on clusters
+
+## Bioinformatics
+
+- [Bioinformatics](https://docs.alliancecan.ca/wiki/Bioinformatics): Bioinformatics tools and workflows overview
+- [GATK](https://docs.alliancecan.ca/wiki/GATK): GATK genomics toolkit setup and usage
+- [Samtools](https://docs.alliancecan.ca/wiki/Samtools): Samtools for SAM/BAM file manipulation
+- [Nextflow](https://docs.alliancecan.ca/wiki/Nextflow): Nextflow workflow manager on clusters
+- [Cellranger](https://docs.alliancecan.ca/wiki/Cellranger): Cell Ranger for single-cell RNA-seq
+
+## Optional
+
+- [Trillium Quickstart](https://docs.alliancecan.ca/wiki/Trillium_Quickstart): Quick start specific to the Trillium cluster
+- [Niagara Quickstart](https://docs.alliancecan.ca/wiki/Niagara_Quickstart): Quick start specific to Niagara
+- [SSH Keys](https://docs.alliancecan.ca/wiki/SSH_Keys): Generating and managing SSH keys
+- [SSH tunnelling](https://docs.alliancecan.ca/wiki/SSH_tunnelling): SSH tunnelling for port forwarding
+- [Handling large collections of files](https://docs.alliancecan.ca/wiki/Handling_large_collections_of_files): Strategies for millions of small files
+- [Parallel I O introductory tutorial](https://docs.alliancecan.ca/wiki/Parallel_I_O_introductory_tutorial): Parallel I/O with MPI-IO and HDF5
+- [Scalability](https://docs.alliancecan.ca/wiki/Scalability): Testing and improving parallel scalability
+- [Keras](https://docs.alliancecan.ca/wiki/Keras): Keras deep learning library on clusters
+- [XGBoost](https://docs.alliancecan.ca/wiki/XGBoost): XGBoost gradient boosting on clusters
+- [Optuna](https://docs.alliancecan.ca/wiki/Optuna): Optuna hyperparameter optimization
+- [Dask](https://docs.alliancecan.ca/wiki/Dask): Dask parallel computing for Python
+- [Weights Biases wandb](https://docs.alliancecan.ca/wiki/Weights_Biases_wandb): Weights & Biases experiment tracking
+- [MLflow](https://docs.alliancecan.ca/wiki/MLflow): MLflow experiment tracking on clusters
+- [Tensorboard](https://docs.alliancecan.ca/wiki/Tensorboard): TensorBoard visualization for training
+- [CP2K](https://docs.alliancecan.ca/wiki/CP2K): CP2K atomistic simulation
+- [CPLEX](https://docs.alliancecan.ca/wiki/CPLEX): CPLEX optimization solver
+- [Gurobi](https://docs.alliancecan.ca/wiki/Gurobi): Gurobi optimization solver
+- [FreeSurfer](https://docs.alliancecan.ca/wiki/FreeSurfer): FreeSurfer neuroimaging toolkit
+- [FMRIPrep](https://docs.alliancecan.ca/wiki/FMRIPrep): fMRIPrep neuroimaging pipeline
+- [Visualization](https://docs.alliancecan.ca/wiki/Visualization): Visualization tools overview
+- [ParaView](https://docs.alliancecan.ca/wiki/ParaView): ParaView for scientific visualization
+- [Self-paced courses](https://docs.alliancecan.ca/wiki/Self-paced_courses): Free training materials and tutorials
+- [Frequently Asked Questions](https://docs.alliancecan.ca/wiki/Frequently_Asked_Questions): Common questions and answers
