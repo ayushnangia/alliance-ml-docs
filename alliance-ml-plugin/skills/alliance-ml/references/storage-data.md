@@ -16,6 +16,96 @@
 diskusage_report
 ```
 
+Sample output:
+```
+Description                     Space           # of files
+Home (username)              280 kB/47 GB              25/500k
+Scratch (username)           4096 B/18 TB               1/1000k
+Project (def-piname-ab)      4096 B/9536 GB             2/500k
+Project (def-piname)         4096 B/9536 GB             2/500k
+```
+
+## Filesystem paths by cluster
+
+**Important:** The paths to scratch and project vary by cluster. Always use the environment variables (`$SCRATCH`, `$PROJECT`) rather than hardcoded paths.
+
+### Path conventions
+
+Project directories are named after your PI's account:
+- **Default projects:** `def-piname` (e.g., `def-smith` or `def-smith-ab`)
+- **RAC projects:** `rrg-piname-ab` (Resource Allocation Competition)
+- **AI programs:** `aip-piname`
+
+`$PROJECT` points to your **default** project (usually alphabetically last). If you belong to multiple projects, navigate to the specific one via the symlinks.
+
+### Standard clusters (Narval, Cedar, Graham, Nibi, Killarney, Vulcan, TamIA)
+
+```bash
+$HOME                          # /home/username
+~/scratch                      # symlink → /scratch/username  (same as $SCRATCH)
+~/projects/def-piname/         # symlink → /project/def-piname/
+~/projects/def-piname/$USER/   # your personal dir within the project
+```
+
+Example:
+```bash
+# These all reach the same place
+cd $SCRATCH
+cd ~/scratch
+cd /scratch/$USER
+
+# Access your project space
+cd ~/projects/def-smith/$USER
+cd $PROJECT/$USER              # if def-smith is your default project
+```
+
+### Trillium & Rorqual (use `$HOME/links/`)
+
+These clusters nest symlinks under `$HOME/links/` instead of directly in `$HOME/`:
+
+```bash
+$HOME/links/scratch            # symlink → $SCRATCH
+$HOME/links/projects/def-piname/   # symlink → project space
+```
+
+The `$HOME/links/projects/` directory auto-updates when you join or leave projects.
+
+```bash
+# On Trillium/Rorqual — these work
+cd $SCRATCH                    # always works (env var)
+cd $HOME/links/scratch         # cluster-specific symlink
+cd $HOME/links/projects/def-smith/$USER
+```
+
+### Fir
+
+Fir uses symlinks directly in `$HOME/` but with slightly different naming:
+
+```bash
+$HOME/scratch                  # symlink → scratch storage
+$HOME/project/def-piname/      # symlink → project storage (note: singular "project", not "projects")
+```
+
+### What to use in scripts (portable)
+
+Always use environment variables — they work on every cluster:
+
+```bash
+# In job scripts, always use:
+$HOME          # home directory
+$SCRATCH       # scratch space
+$PROJECT       # default project
+
+# For a specific project (if you have multiple):
+~/projects/def-piname/$USER    # standard clusters
+# or just use the full path:
+/project/def-piname/$USER
+```
+
+### Cedar-specific note
+
+Cedar does not allow running jobs from the `/home` filesystem. Always submit jobs from `$SCRATCH` or `$PROJECT`.
+
 ## Choosing storage for ML datasets
 
 ### Small datasets (< 10 GB)

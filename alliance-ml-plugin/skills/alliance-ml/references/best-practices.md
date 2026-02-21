@@ -68,10 +68,10 @@ The parallel filesystem (`$HOME`, `$SCRATCH`, `$PROJECT`) is optimized for large
 1. **Archive with tar** (best for image datasets):
 ```bash
 # Once, on login node:
-tar cf ~/projects/def-yourpi/$USER/imagenet.tar imagenet/
+tar cf $SCRATCH/imagenet.tar imagenet/
 
 # In every job script:
-cp ~/projects/def-yourpi/$USER/imagenet.tar $SLURM_TMPDIR/
+cp $SCRATCH/imagenet.tar $SLURM_TMPDIR/
 cd $SLURM_TMPDIR && tar xf imagenet.tar
 ```
 
@@ -97,7 +97,7 @@ dataset = wds.WebDataset("$SLURM_TMPDIR/shards-{0000..0099}.tar")
 
 ```bash
 # Copy data at job start
-cp ~/projects/def-yourpi/$USER/dataset.tar $SLURM_TMPDIR/
+cp $SCRATCH/dataset.tar $SLURM_TMPDIR/
 cd $SLURM_TMPDIR && tar xf dataset.tar
 
 # Point your training to local storage
@@ -238,12 +238,12 @@ for i, batch in enumerate(dataloader):
 ### Directory structure
 
 ```
-~/projects/def-yourpi/$USER/
-├── models/              # Downloaded pretrained models
+$PROJECT/$USER/
+├── models/              # Downloaded pretrained models (persistent)
 ├── datasets/            # Processed datasets (Parquet, tar)
 ├── envs/                # Or ~/ENV for virtualenvs
 │
-~/scratch/
+$SCRATCH/
 ├── experiments/
 │   ├── exp001_baseline/
 │   │   ├── checkpoints/

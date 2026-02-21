@@ -130,7 +130,7 @@ module load python/3.11 gcc arrow
 source ~/ENV/bin/activate
 
 # Copy dataset to fast local storage
-cp ~/projects/def-yourpi/$USER/dataset.parquet $SLURM_TMPDIR/
+cp $SCRATCH/dataset.parquet $SLURM_TMPDIR/
 
 python train.py --data $SLURM_TMPDIR/dataset.parquet
 ```
@@ -154,11 +154,11 @@ The parallel filesystem is slow with many small files. Archive them first:
 
 ```bash
 # On login node: archive the dataset
-cd ~/projects/def-yourpi/$USER
+cd $SCRATCH
 tar cf imagenet.tar imagenet/
 
 # In job script: extract to fast local storage
-cp ~/projects/def-yourpi/$USER/imagenet.tar $SLURM_TMPDIR/
+cp $SCRATCH/imagenet.tar $SLURM_TMPDIR/
 cd $SLURM_TMPDIR && tar xf imagenet.tar
 ```
 

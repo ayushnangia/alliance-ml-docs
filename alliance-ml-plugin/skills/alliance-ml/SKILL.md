@@ -77,6 +77,8 @@ Use: `--gpus-per-node=h100:1` (or `a100:1`, `l40s:1`, etc.)
 
 For ML datasets: copy to `$SLURM_TMPDIR` at job start for best I/O performance.
 
+**Path conventions:** Projects are named after your PI: `def-piname` (default), `rrg-piname` (RAC). Symlink layout differs by cluster — always use `$SCRATCH` and `$PROJECT` env vars in scripts, not hardcoded paths. See `references/storage-data.md` for per-cluster details.
+
 ### Check disk usage
 
 ```bash
@@ -112,6 +114,8 @@ Read `references/gpu-jobs.md` when the user needs help with:
 ### Storage and data management
 Read `references/storage-data.md` when the user needs help with:
 - Choosing where to store datasets
+- Filesystem paths per cluster ($SCRATCH, $PROJECT, symlink layout differences)
+- PI project naming (def-piname, rrg-piname)
 - Handling large collections of small files (tar, zip)
 - Using $SLURM_TMPDIR for fast local I/O
 - Transferring data (Globus, scp, rsync)

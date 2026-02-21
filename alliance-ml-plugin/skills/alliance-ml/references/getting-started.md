@@ -78,11 +78,24 @@ diskusage_report
 
 ### Your directory structure
 
+The symlink layout varies by cluster, but the environment variables (`$HOME`, `$SCRATCH`, `$PROJECT`) always work:
+
+```bash
+# Most clusters (Narval, Cedar, Graham, Nibi, Killarney, Vulcan, TamIA):
+$HOME/                          # 50 GB, backed up, for code/scripts
+~/scratch -> /scratch/$USER     # 20 TB, purged after 60 days
+~/projects/def-piname/$USER/    # 1 TB+, shared with group
+
+# Trillium & Rorqual (symlinks under $HOME/links/):
+$HOME/links/scratch -> $SCRATCH
+$HOME/links/projects/def-piname/$USER/
+
+# Fir (symlinks directly in $HOME, singular "project"):
+$HOME/scratch -> scratch storage
+$HOME/project/def-piname/$USER/
 ```
-$HOME/              # 50 GB, backed up, for code/scripts
-$HOME/scratch -> $SCRATCH/   # 20 TB, purged after 60 days
-$HOME/projects -> $PROJECT/  # 1 TB+, shared with group
-```
+
+**Always use `$SCRATCH`, `$PROJECT`, `$HOME`** in scripts — these env vars work on every cluster regardless of symlink layout.
 
 ### Loading software (modules)
 

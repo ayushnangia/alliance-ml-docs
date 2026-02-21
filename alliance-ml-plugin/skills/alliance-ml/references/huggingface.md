@@ -73,7 +73,7 @@ Models must be downloaded **on a login node** before submitting jobs. Choose one
 
 ```bash
 module load git-lfs/3.4.0
-cd ~/projects/def-yourpi/$USER
+cd $SCRATCH   # or $PROJECT/$USER for persistent storage
 
 # --depth 1 avoids downloading full git history
 # --jobs 1 prevents overloading the login node
@@ -312,10 +312,10 @@ module load python/3.11 gcc arrow
 source ~/ENV/bin/activate
 
 # Copy dataset to fast local storage
-cp -r ~/projects/def-yourpi/$USER/my_dataset $SLURM_TMPDIR/
+cp -r $SCRATCH/my_dataset $SLURM_TMPDIR/
 
 export HF_DATASETS_CACHE=$SLURM_TMPDIR/my_dataset
-export TRANSFORMERS_CACHE=~/projects/def-yourpi/$USER/my_model
+export TRANSFORMERS_CACHE=$SCRATCH/my_model
 export HF_DATASETS_OFFLINE=1
 export TRANSFORMERS_OFFLINE=1
 export TORCH_NCCL_ASYNC_ERROR_HANDLING=1
