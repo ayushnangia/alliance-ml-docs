@@ -2,5 +2,7 @@
   "name": "alliance-ml",
   "description": "Guide for running ML/AI workloads on Alliance Canada (formerly Compute Canada) HPC clusters. Covers Slurm job submission, GPU selection, Python environments, distributed training, HuggingFace, data management, and cluster-specific best practices.",
   "version": "1.0.0",
-  "author": "Ayush Nangia"
+  "author": {
+    "name": "Ayush Nangia"
+  }
 }
