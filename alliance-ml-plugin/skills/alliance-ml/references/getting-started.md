@@ -86,23 +86,62 @@ $HOME/projects -> $PROJECT/  # 1 TB+, shared with group
 
 ### Loading software (modules)
 
-Alliance clusters use Lmod for managing software. Key commands:
+Alliance clusters use **Lmod** for managing software. There are two key search commands:
 
 ```bash
-module avail python          # List available Python versions
-module spider pytorch        # Search for a package
+module avail python          # List currently loadable Python versions
+module spider pytorch        # Search ALL modules (even those not yet loadable)
 module load python/3.11      # Load a specific version
 module list                  # Show loaded modules
 module purge                 # Unload all modules
 ```
 
-### Standard software environment
+**`module avail` vs `module spider`:**
 
-Clusters use a standard environment (StdEnv). The default is usually the latest, but you can switch:
+| Command | What it searches | When to use |
+|---------|-----------------|-------------|
+| `module avail <name>` | Only modules loadable with your current environment | Quick check: "Can I load this right now?" |
+| `module spider <name>` | All modules across all environments and compilers | Deep search: "Does this software exist on the cluster?" |
+
+`module spider` is especially useful because many packages only become loadable after you load their dependencies (e.g., you can't see `pytorch` until you load `python`).
 
 ```bash
-module load StdEnv/2023      # Load specific standard environment
+# Find what you need to load first
+module spider pytorch/2.5.1
+# Output tells you: "You will need to load ... before ..."
 ```
+
+### Module hierarchy
+
+Modules are organized in a tree:
+
+```
+StdEnv (trunk)
+  └── Compiler (e.g., gcc/12.3)
+        └── MPI (e.g., openmpi/4.1.5)
+              └── Software (e.g., some-mpi-package)
+```
+
+This means some software only appears after you load the right compiler or MPI module. For ML work, you rarely need MPI modules — most packages are available after loading `python` and optionally `cuda`.
+
+### Standard software environment (StdEnv)
+
+The StdEnv module defines the default compiler, MPI, and CUDA versions. Two versions are relevant:
+
+| Environment | Status | GCC | CUDA | Notes |
+|-------------|--------|-----|------|-------|
+| **StdEnv/2023** | **Current default** | 12.3 | 12.x | Use this for new projects |
+| StdEnv/2020 | Deprecated | 9.3 | 11.x | Still works for CPU-only software; not supported on newer clusters |
+
+```bash
+# Explicitly load the current default (usually not needed)
+module load StdEnv/2023
+
+# Load the older environment (only if you have legacy dependencies)
+module load StdEnv/2020
+```
+
+**For ML researchers:** StdEnv/2023 is almost always what you want. It provides CUDA 12 and GCC 12.3, which are required for modern GPU libraries (PyTorch 2.x, TensorFlow 2.x on H100 clusters).
 
 ### Login node etiquette
 

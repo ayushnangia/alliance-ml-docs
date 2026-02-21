@@ -180,15 +180,65 @@ pip install --no-index wandb
 
 ```python
 import wandb
-wandb.init(project="my-project", config=args)
+wandb.init(project="my-project", config=args,
+           settings=wandb.Settings(start_method="fork"))
 # In training loop:
 wandb.log({"loss": loss, "accuracy": acc, "epoch": epoch})
 ```
 
-Set `WANDB_MODE=offline` if the cluster has no internet access, then sync later:
+#### Per-cluster W&B availability
+
+Full W&B usage requires internet access **and** access to Google Cloud Storage. Not all clusters support both:
+
+| Cluster | W&B Availability | Notes |
+|---------|-----------------|-------|
+| Fir | Full access | No httpproxy needed |
+| Nibi | Full access | No httpproxy needed |
+| Vulcan | Full access | No httpproxy needed |
+| Killarney | Full access | No httpproxy needed |
+| Trillium | No access | Internet disabled on compute nodes |
+| Narval | Limited | MILA and eligible groups only (via httpproxy) |
+| Rorqual | Limited | MILA and eligible groups only (via httpproxy) |
+| TamIA | Limited | MILA and eligible groups only (via httpproxy) |
+
+**Google Cloud Storage API issue (Narval, Rorqual, TamIA):** Even with internet access, W&B automatically uploads environment info to Google Cloud Storage. This is **blocked** on these clusters and will cause your job to **crash or freeze** until wall time is reached. `wandb.save()` also requires GCS access and will fail. Use offline mode instead.
+
+**MILA users:** Members of MILA Québec AI Institute can use W&B on clusters with internet access via `module load httpproxy` and a valid Mila-org W&B account.
+
+#### Offline workflow (recommended for restricted clusters)
+
 ```bash
-wandb sync wandb/offline-run-*
+# In your job script, before training:
+wandb offline
+
+# Or set via environment variable:
+export WANDB_MODE=offline
 ```
+
+After your job finishes, sync from the login node:
+
+```bash
+wandb sync ./wandb/offline-run*
+```
+
+Complete offline job example:
+
+```bash
+#!/bin/bash
+#SBATCH --account=def-someuser
+#SBATCH --gpus-per-node=a100:1
+#SBATCH --cpus-per-task=2
+#SBATCH --mem=32000M
+#SBATCH --time=0-03:00
+
+module load python/3.11
+source ~/ENV/bin/activate
+
+wandb offline
+python train.py
+```
+
+**Alternative:** [Comet.ml](https://www.comet.ml/) works on Narval, Rorqual, and TamIA where W&B has issues. Install with `pip install --no-index comet_ml`.
 
 ### MLflow
 
@@ -204,7 +254,32 @@ mlflow.log_metric("loss", loss, step=epoch)
 mlflow.end_run()
 ```
 
-Note: W&B and Comet.ml are not available on Graham.
+## JupyterHub
+
+JupyterHub is available on select clusters for short interactive work:
+
+| Cluster | JupyterHub |
+|---------|-----------|
+| Fir | Yes |
+| Narval | Yes |
+| Rorqual | Yes |
+
+Connect at the cluster's JupyterHub URL using your Alliance username and password.
+
+### Important limitations
+
+- **Compute nodes have no internet access.** You cannot `pip install`, `git clone`, or download data from within Jupyter notebooks on compute nodes.
+- **Use for short interactive tasks only** — testing, debugging, quick visualization (a few minutes). For real training, submit batch jobs with `sbatch`.
+- **One interactive job priority at a time.** If you already have an `salloc` or other interactive job running, your Jupyter session may queue for up to 5 minutes before timing out.
+
+### Converting notebooks to scripts
+
+For real training runs, convert notebooks to Python scripts:
+
+```bash
+jupyter nbconvert --to script my_notebook.ipynb
+# Produces my_notebook.py — clean up and submit with sbatch
+```
 
 ## GNU Parallel (many serial tasks)
 

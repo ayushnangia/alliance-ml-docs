@@ -1,193 +1,143 @@
-# Alliance Canada ML Documentation & Skill
+# Alliance Canada ML Documentation & Claude Code Plugin
 
-A comprehensive collection of scraped, cleaned, and organized documentation from the [Digital Research Alliance of Canada](https://docs.alliancecan.ca/) (formerly Compute Canada), tailored for machine learning researchers working on Canadian HPC clusters.
+Everything you need to run ML workloads on [Alliance Canada](https://docs.alliancecan.ca/) (formerly Compute Canada) HPC clusters — scraped docs, curated ML subset, and a Claude Code plugin that actually knows how these clusters work.
+
+## Quick Start
+
+### Option A: Install from GitHub (recommended)
+
+```bash
+# Add the marketplace
+/plugin marketplace add ayushnangia/alliance-ml-docs
+
+# Install the plugin
+/plugin install alliance-ml@alliance-ml-docs
+```
+
+Two commands, no cloning needed. Works anywhere Claude Code runs.
+
+### Option B: Install from a local clone
+
+```bash
+git clone https://github.com/ayushnangia/alliance-ml-docs.git
+cd alliance-ml-docs
+claude plugin add ./alliance-ml-plugin
+```
+
+### Option C: On a cluster login node (symlink)
+
+```bash
+git clone https://github.com/ayushnangia/alliance-ml-docs.git ~/alliance-ml-docs
+mkdir -p ~/.claude/skills
+ln -s ~/alliance-ml-docs/alliance-ml-plugin/skills/alliance-ml ~/.claude/skills/alliance-ml
+```
+
+### Try it
+
+Ask Claude things like:
+- "Write me a multi-GPU training job for Narval"
+- "How do I use vLLM for inference on 2 nodes?"
+- "Set up HuggingFace with offline mode for Trillium"
+- "Why is my W&B job crashing on Narval?"
 
 ## What's in this repo
 
 ```
 .
-├── docs/                    # Full technical documentation (409 pages)
-│   ├── llms.txt             # LLM-friendly index of all docs
-│   ├── llms-full.txt        # All docs inlined for LLM context
-│   ├── INDEX.md             # Categorized human-readable index
-│   └── *.md                 # Individual documentation pages
+├── .claude-plugin/
+│   └── marketplace.json      # Marketplace config (enables remote install)
 │
-├── ml-docs/                 # ML researcher subset (156 pages)
-│   ├── llms.txt             # LLM-friendly index (ML-focused)
-│   ├── llms-full.txt        # All ML docs inlined for LLM context
-│   ├── INDEX.md             # Categorized index for ML researchers
-│   └── *.md                 # Individual documentation pages
+├── alliance-ml-plugin/       # Claude Code plugin
+│   ├── plugin.json
+│   └── skills/alliance-ml/
+│       ├── SKILL.md           # Quick reference + routing logic
+│       └── references/        # 12 detailed reference guides
 │
-├── alliance-ml-skill/       # Claude Code skill for Alliance HPC
-│   ├── SKILL.md             # Main skill file (quick reference + routing)
-│   └── references/          # Detailed reference guides
-│       ├── getting-started.md
-│       ├── python-env.md
-│       ├── gpu-jobs.md
-│       ├── storage-data.md
-│       ├── distributed-training.md
-│       ├── clusters.md
-│       └── job-management.md
+├── ml-docs/                   # 156 ML-relevant docs (curated subset)
+│   ├── llms.txt               # LLM-friendly index
+│   └── llms-full.txt          # All docs inlined (~3 MB)
 │
-└── scrape_wiki.py           # Scraper used to fetch the docs
+├── docs/                      # Full 409-page doc set
+│   ├── llms.txt
+│   └── llms-full.txt
+│
+└── scrape_wiki.py             # Scraper to refresh docs
 ```
 
-## docs/ — Full Documentation
+## Plugin Reference Files
 
-All 409 English-language pages from the Alliance Canada technical wiki, converted to clean Markdown. Covers clusters, Slurm scheduling, storage, cloud computing, scientific software, bioinformatics, and more.
+The plugin has 12 reference files that Claude loads on-demand based on what you're asking about:
 
-- **`llms.txt`** — Curated index following the [llms.txt spec](https://llmstxt.org/), with sections for clusters, getting started, jobs, storage, software, Python, AI/ML, programming, cloud, scientific software, and bioinformatics
-- **`llms-full.txt`** — All 102 key docs inlined with XML tags, ready to drop into an LLM context window (~2 MB)
-- **`INDEX.md`** — Full categorized index across 22 sections
+| Reference | What it covers |
+|-----------|---------------|
+| **getting-started.md** | Account, SSH, MFA, Lmod modules, StdEnv/2023 |
+| **python-env.md** | virtualenv, `--no-index` wheels, why not Conda |
+| **gpu-jobs.md** | GPU specifiers by cluster, MIG, job scripts |
+| **storage-data.md** | Storage tiers, `$SLURM_TMPDIR`, Globus transfers |
+| **clusters.md** | Cluster comparison and selection guide |
+| **distributed-training.md** | PyTorch DDP, DeepSpeed ZeRO, torchrun, NCCL |
+| **job-management.md** | Slurm directives, job arrays, checkpointing, W&B per-cluster availability, JupyterHub |
+| **huggingface.md** | Transformers, Datasets, Accelerate, FSDP, offline mode, HF_TOKEN for gated models |
+| **data-formats.md** | Apache Arrow module, PyArrow, Parquet |
+| **containers.md** | Apptainer: GPU containers, bind mounts, SIF from Docker, Conda in containers |
+| **vllm.md** | vLLM install, tensor parallelism, multi-node Ray inference |
+| **best-practices.md** | Job design, I/O optimization, checkpointing, memory, anti-patterns |
 
-## ml-docs/ — ML Researcher Subset
-
-A hand-curated selection of 156 pages specifically relevant to ML researchers. Every file from the full docs was individually evaluated for inclusion. Organized into 16 sections covering everything from first SSH connection to multi-node DeepSpeed training.
-
-### Sections
-
-| Section | Pages | Covers |
-|---------|-------|--------|
-| Getting Started | 10 | Accounts, SSH, first job |
-| SSH & Remote Access | 12 | SSH keys, tunnelling, MobaXterm |
-| Cluster Specifications | 16 | Hardware specs for each cluster |
-| Submitting & Managing Jobs | 12 | sbatch, squeue, job arrays |
-| Storage & Data Management | 15 | $SCRATCH, $PROJECT, Globus, tar |
-| Python Environment | 9 | virtualenv, pip wheels, Jupyter |
-| Software Modules & Containers | 11 | Lmod, Apptainer, EasyBuild |
-| GPU & CUDA Programming | 9 | CUDA, nvidia-smi, MIG, multi-GPU |
-| AI & ML Frameworks | 24 | PyTorch, TensorFlow, HuggingFace, DeepSpeed, vLLM |
-| ML Experiment Tracking | 7 | W&B, MLflow, TensorBoard |
-| Distributed & Parallel Computing | 7 | MPI, NCCL, torchrun |
-| Datasets & Data Formats | 7 | HDF5, NetCDF, large collections |
-| Debugging & Profiling | 3 | Profiling, debugging tools |
-| Cloud Computing | 6 | OpenStack VMs, vGPUs |
-| Programming Tools | 5 | Git, R, Julia |
-| Resource Allocation | 3 | RAC, allocations |
-
-- **`llms.txt`** — ML-focused index with key facts (GPU specifiers, pip patterns, storage tiers)
-- **`llms-full.txt`** — All 156 ML docs inlined (~3 MB)
-
-## alliance-ml-skill/ — Claude Code Skill
-
-A [Claude Code skill](https://docs.anthropic.com/en/docs/claude-code) that gives Claude accurate, up-to-date knowledge about running ML workloads on Alliance Canada clusters. Divided into focused reference files so Claude loads only what's needed.
-
-### Skill structure
-
-| File | What it covers |
-|------|---------------|
-| **SKILL.md** | Quick reference cheat sheet — SSH, Python env, GPU job template, specifier table, storage tiers, common pitfalls. Routes to detailed references. |
-| **references/getting-started.md** | Account creation, SSH, MFA, modules, first steps |
-| **references/python-env.md** | virtualenv, `--no-index` wheels, SciPy stack, why not Conda |
-| **references/gpu-jobs.md** | GPU specifiers by cluster, MIG, job scripts, interactive sessions |
-| **references/storage-data.md** | Storage tiers, `$SLURM_TMPDIR`, dataset strategies, Globus |
-| **references/distributed-training.md** | PyTorch DDP, multi-node, DeepSpeed ZeRO, torchrun, NCCL |
-| **references/clusters.md** | Cluster comparison, Trillium details, selection guide |
-| **references/job-management.md** | Slurm directives, job arrays, checkpointing, W&B/MLflow |
-
-### Installing the skill
-
-Copy or symlink into your Claude Code skills directory:
+## Key Things to Remember
 
 ```bash
-# Option 1: Symlink
-ln -s /path/to/alliance-ml-skill ~/.claude/skills/alliance-ml
-
-# Option 2: Copy
-cp -r alliance-ml-skill ~/.claude/skills/alliance-ml
-```
-
-Then Claude will automatically use this skill when you ask about Alliance Canada clusters, GPU jobs, Slurm, or ML training on HPC.
-
-## llms.txt files
-
-This repo follows the [llms.txt specification](https://llmstxt.org/) for LLM-friendly documentation:
-
-| File | Size | Contents |
-|------|------|----------|
-| `docs/llms.txt` | 12 KB | Curated index of all documentation |
-| `docs/llms-full.txt` | ~2 MB | 102 key docs inlined with XML structure |
-| `ml-docs/llms.txt` | 18 KB | ML-focused index with key facts |
-| `ml-docs/llms-full.txt` | ~3 MB | All 156 ML docs inlined |
-
-### Using with LLMs
-
-Drop the relevant `llms.txt` (index only) or `llms-full.txt` (full content) into your LLM's context:
-
-```python
-# Quick reference — just the index
-with open("ml-docs/llms.txt") as f:
-    context = f.read()
-
-# Full context — all docs inlined
-with open("ml-docs/llms-full.txt") as f:
-    context = f.read()
-```
-
-## Quick start for ML researchers
-
-### 1. Connect
-
-```bash
-ssh youruser@narval.alliancecan.ca
-```
-
-### 2. Set up Python
-
-```bash
+# Python: always use virtualenv + Alliance wheels
 module load python/3.11
 virtualenv --no-download ~/mlenv
 source ~/mlenv/bin/activate
-pip install --no-index --upgrade pip
 pip install --no-index torch torchvision
+
+# HuggingFace: set token for gated models, download on login node
+export HF_TOKEN="hf_your_token_here"
+export HF_HOME=$SCRATCH/.cache/huggingface
+huggingface-cli download meta-llama/Llama-3.1-8B
+
+# Jobs: always enforce offline mode
+export HF_HUB_OFFLINE=1
+export TRANSFORMERS_OFFLINE=1
+export HF_DATASETS_OFFLINE=1
+
+# Arrow: required for HF datasets/evaluate
+module load gcc arrow
 ```
 
-### 3. Submit a GPU job
-
-```bash
-#!/bin/bash
-#SBATCH --account=def-yourpi
-#SBATCH --gpus-per-node=a100:1
-#SBATCH --cpus-per-task=6
-#SBATCH --mem=32000M
-#SBATCH --time=0-03:00
-
-module load python/3.11
-source ~/mlenv/bin/activate
-python train.py
-```
-
-```bash
-sbatch train_job.sh
-```
-
-### Key things to remember
-
-- Use `virtualenv` + `pip install --no-index`, never Conda
-- Copy datasets to `$SLURM_TMPDIR` for fast I/O
+- Use `virtualenv` + `pip install --no-index`, **never Conda**
+- Copy datasets to `$SLURM_TMPDIR` at job start for fast I/O
+- Download models/datasets on **login nodes** only
+- Use `local_files_only=True` in all `from_pretrained()` calls in jobs
 - Checkpoint regularly — split long training into 24h chunks
 - Shorter jobs get scheduled faster
+- Store large models in `$SCRATCH` (20 TB), not `$HOME` (50 GB)
+
+## ml-docs/ — For Non-Plugin Use
+
+If you're not using Claude Code, you can still use the curated docs directly:
+
+```python
+# Drop into any LLM's context
+with open("ml-docs/llms-full.txt") as f:
+    context = f.read()  # ~3 MB, all 156 ML docs inlined
+```
+
+The 156 pages cover: getting started, SSH, cluster specs, Slurm jobs, storage, Python environments, Lmod/Apptainer, GPU/CUDA, PyTorch/TensorFlow/HuggingFace/DeepSpeed/vLLM, W&B/MLflow, MPI/NCCL, data formats, debugging, cloud, and resource allocation.
 
 ## Scraping
 
-The documentation was scraped from the [Alliance Canada wiki](https://docs.alliancecan.ca/wiki/Technical_documentation) using `scrape_wiki.py`. The scraper:
-
-- Fetches all English pages via the MediaWiki API
-- Converts HTML to clean Markdown
-- Filters out French pages, redirects, and junk
-- Builds categorized indices
-
 ```bash
-# Recreate the full docs (requires .venv with requests, beautifulsoup4, markdownify)
+# Recreate docs from the Alliance wiki
+pip install requests beautifulsoup4 markdownify
 python scrape_wiki.py --all --output docs/
 ```
 
 ## Disclaimer & Attribution
 
-The documentation content in `docs/` and `ml-docs/` is sourced from the [Digital Research Alliance of Canada](https://docs.alliancecan.ca/) public wiki. All credit for the original documentation goes to the Alliance and its contributors. This repository is an unofficial community resource created for educational and research purposes to help ML researchers navigate Alliance HPC systems more easily.
+The documentation in `docs/` and `ml-docs/` is sourced from the [Digital Research Alliance of Canada](https://docs.alliancecan.ca/) public wiki. All credit for the original documentation goes to the Alliance and its contributors.
 
-**This is not an official Alliance Canada product.** If you need authoritative documentation, please refer to the original wiki at [docs.alliancecan.ca](https://docs.alliancecan.ca/).
+**This is not an official Alliance Canada product.** For authoritative documentation, refer to [docs.alliancecan.ca](https://docs.alliancecan.ca/).
 
-The scraper (`scrape_wiki.py`), skill (`alliance-ml-skill/`), README, llms.txt curation, and organizational structure are original work in this repo.
-
-If you are a representative of the Digital Research Alliance of Canada and have concerns about this repository, please open an issue or contact us and we will promptly address them.
+The scraper, plugin, README, llms.txt curation, and organizational structure are original work. If you are a representative of the Alliance and have concerns, please open an issue.

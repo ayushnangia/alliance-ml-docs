@@ -1,6 +1,6 @@
 ---
 name: alliance-ml
-description: "Guide for running ML/AI workloads on Alliance Canada (formerly Compute Canada) HPC clusters. Use this skill whenever the user mentions Alliance Canada, Compute Canada, Narval, Cedar, Graham, Trillium, Niagara, Fir, Nibi, Rorqual, Killarney, Slurm job submission on Canadian clusters, sbatch for ML training, GPU jobs on HPC, virtualenv on clusters, or anything related to running deep learning on shared computing infrastructure. Also use when the user asks about CUDA on clusters, distributed training with DeepSpeed/PyTorch DDP on Slurm, or managing datasets on parallel filesystems."
+description: "Guide for running ML/AI workloads on Alliance Canada (formerly Compute Canada) HPC clusters. Use this skill whenever the user mentions Alliance Canada, Compute Canada, Narval, Cedar, Graham, Trillium, Niagara, Fir, Nibi, Rorqual, Killarney, Slurm job submission on Canadian clusters, sbatch for ML training, GPU jobs on HPC, virtualenv on clusters, or anything related to running deep learning on shared computing infrastructure. Also use when the user asks about CUDA on clusters, distributed training with DeepSpeed/PyTorch DDP on Slurm, managing datasets on parallel filesystems, HuggingFace on HPC, Apache Arrow or Parquet on clusters, ML best practices for shared computing, Apptainer, Singularity, containers on HPC, vLLM, inference serving on HPC, or LLM inference on clusters."
 ---
 
 # Alliance Canada HPC for ML Researchers
@@ -140,6 +140,52 @@ Read `references/job-management.md` when the user needs help with:
 - Monitoring jobs (squeue, sacct, sstat)
 - Checkpointing long training runs
 - Experiment tracking (W&B, MLflow)
+- W&B per-cluster availability and offline workflow
+- JupyterHub (Fir, Narval, Rorqual)
+
+### HuggingFace ecosystem
+Read `references/huggingface.md` when the user needs help with:
+- Installing transformers, datasets, evaluate, accelerate
+- Downloading and caching models (git-lfs, hf CLI, Python)
+- HF_TOKEN setup for gated models (Llama, Gemma, Mistral)
+- Offline mode and environment variables (HF_HOME, TRANSFORMERS_CACHE)
+- HuggingFace Accelerate for multi-GPU / multi-node training
+- Fine-tuning LLMs with FSDP
+- Using pipelines and tokenizers offline
+- Checking dataset configs and splits before loading
+
+### Data formats (Arrow, Parquet)
+Read `references/data-formats.md` when the user needs help with:
+- Loading the Arrow module (required for datasets/evaluate)
+- PyArrow with NumPy, Pandas, Parquet
+- Converting CSV to Parquet for efficient storage
+- CUDA-accelerated Arrow
+- Data format selection for ML workloads
+
+### Containers (Apptainer)
+Read `references/containers.md` when the user needs help with:
+- Running software in containers on HPC (Apptainer/Singularity)
+- GPU access inside containers (`--nv` flag)
+- Bind mounts for cluster filesystems (`-B /project`, `-B /scratch`)
+- Building SIF images from Docker images
+- Using Conda/Micromamba inside containers
+- Apptainer cache management
+
+### vLLM inference serving
+Read `references/vllm.md` when the user needs help with:
+- Installing and running vLLM on Alliance clusters
+- Single-node LLM inference with tensor parallelism
+- Multi-node inference with Ray
+- Downloading and caching HuggingFace models for vLLM
+
+### ML best practices
+Read `references/best-practices.md` when the user needs help with:
+- Job design (splitting training, right-sizing resources)
+- Data I/O optimization (small files problem, $SLURM_TMPDIR)
+- Checkpointing and auto-resubmission patterns
+- Memory management (gradient checkpointing, mixed precision)
+- Experiment organization and reproducibility
+- Common anti-patterns to avoid
 
 ## Common pitfalls
 
@@ -158,3 +204,5 @@ Read `references/job-management.md` when the user needs help with:
 7. **Requesting too much time**: Shorter jobs get scheduled faster. Request only what you need.
 
 8. **H100 clusters need torch >= 2.5.1**: On Trillium/Fir/Nibi, older PyTorch versions won't work with H100 GPUs.
+
+9. **Using Docker directly**: Docker is not available on Alliance HPC clusters (security reasons). Use Apptainer instead. You can convert Docker images to Apptainer SIF files: `apptainer build image.sif docker://...`
