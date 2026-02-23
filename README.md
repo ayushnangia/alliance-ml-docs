@@ -4,7 +4,15 @@ Everything you need to run ML workloads on [Alliance Canada](https://docs.allian
 
 ## Quick Start
 
-### Option A: Install from GitHub (recommended)
+### Option A: Agent Skills (works with Claude Code, Codex, Cursor, Copilot, etc.)
+
+```bash
+npx skills add ayushnangia/alliance-ml-docs
+```
+
+One command. Works with 37+ AI coding agents via the [open agent skills ecosystem](https://skills.sh).
+
+### Option B: Claude Code plugin (marketplace)
 
 ```bash
 # Add the marketplace
@@ -14,9 +22,7 @@ Everything you need to run ML workloads on [Alliance Canada](https://docs.allian
 /plugin install alliance-ml@alliance-ml-docs
 ```
 
-Two commands, no cloning needed. Works anywhere Claude Code runs.
-
-### Option B: Install from a local clone
+### Option C: Install from a local clone
 
 ```bash
 git clone https://github.com/ayushnangia/alliance-ml-docs.git
@@ -24,12 +30,12 @@ cd alliance-ml-docs
 claude plugin add ./alliance-ml-plugin
 ```
 
-### Option C: On a cluster login node (symlink)
+### Option D: On a cluster login node (symlink)
 
 ```bash
 git clone https://github.com/ayushnangia/alliance-ml-docs.git ~/alliance-ml-docs
 mkdir -p ~/.claude/skills
-ln -s ~/alliance-ml-docs/alliance-ml-plugin/skills/alliance-ml ~/.claude/skills/alliance-ml
+ln -s ~/alliance-ml-docs/skills/alliance-ml ~/.claude/skills/alliance-ml
 ```
 
 ### Try it
@@ -44,14 +50,17 @@ Ask Claude things like:
 
 ```
 .
-├── .claude-plugin/
-│   └── marketplace.json      # Marketplace config (enables remote install)
-│
-├── alliance-ml-plugin/       # Claude Code plugin
-│   ├── plugin.json
-│   └── skills/alliance-ml/
+├── skills/                    # Agent Skills (npx skills add)
+│   └── alliance-ml/
 │       ├── SKILL.md           # Quick reference + routing logic
 │       └── references/        # 12 detailed reference guides
+│
+├── alliance-ml-plugin/       # Claude Code plugin wrapper
+│   ├── plugin.json
+│   └── skills/alliance-ml → ../../skills/alliance-ml
+│
+├── .claude-plugin/
+│   └── marketplace.json      # Marketplace config (enables remote install)
 │
 ├── ml-docs/                   # 156 ML-relevant docs (curated subset)
 │   ├── llms.txt               # LLM-friendly index
