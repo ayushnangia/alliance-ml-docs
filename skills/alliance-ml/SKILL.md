@@ -1,6 +1,10 @@
 ---
 name: alliance-ml
 description: "Guide for running ML/AI workloads on Alliance Canada (formerly Compute Canada) HPC clusters. Use this skill whenever the user mentions Alliance Canada, Compute Canada, Narval, Cedar, Graham, Trillium, Niagara, Fir, Nibi, Rorqual, Killarney, Slurm job submission on Canadian clusters, sbatch for ML training, GPU jobs on HPC, virtualenv on clusters, or anything related to running deep learning on shared computing infrastructure. Also use when the user asks about CUDA on clusters, distributed training with DeepSpeed/PyTorch DDP on Slurm, managing datasets on parallel filesystems, HuggingFace on HPC, Apache Arrow or Parquet on clusters, ML best practices for shared computing, Apptainer, Singularity, containers on HPC, vLLM, inference serving on HPC, or LLM inference on clusters."
+license: MIT
+metadata:
+  author: ayushnangia
+  version: "1.0.0"
 ---
 
 # Alliance Canada HPC for ML Researchers
