@@ -29,9 +29,11 @@ Cluster login nodes: `narval.alliancecan.ca`, `cedar.alliancecan.ca`, `trillium.
 
 **Never request GPUs for IDE sessions** — these tools don't use GPU compute. Use minimal CPU resources (2 CPUs, 4G RAM).
 
+**Internet required:** Claude Code and Codex need internet to reach their APIs. Many clusters block internet on compute nodes. Clusters with internet: **Fir, Nibi, Vulcan, Killarney**. Clusters without: **Narval** (proxy blocks `api.anthropic.com`), **Trillium, Cedar, Graham**. See `references/remote-development.md` for details.
+
 ```bash
 # One-command workflow (recommended, prompts for time):
-cluster-claude narval def-yourpi                          # Claude Code
+cluster-claude fir def-yourpi                             # Claude Code (Fir — has internet)
 cluster-claude killarney aip-yourpi                       # Killarney (aip- accounts)
 cluster-cursor narval def-yourpi                          # Cursor/VSCode
 

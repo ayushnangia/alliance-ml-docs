@@ -16,6 +16,41 @@ Login nodes are shared by all users. These tools spawn background processes, fil
 
 **Never request GPUs for IDE sessions.** Claude Code, Cursor, VSCode, and Codex are CPU-only tools. They don't use GPU compute at all. Requesting a GPU for an IDE session wastes an expensive shared resource that someone else could be using for actual training or inference. Use the minimal resources: 2 CPUs, 4 GB RAM, no GPU. If you need to test GPU code, submit a separate `sbatch` job.
 
+## Internet access on compute nodes
+
+**Claude Code, Cursor (with AI features), and Codex require internet access** to reach their respective APIs. Most Alliance clusters **block internet on compute nodes**, which means these tools will not work without a workaround.
+
+| Cluster | Internet on compute nodes | Claude Code works? |
+|---------|--------------------------|-------------------|
+| **Fir** | Yes | Yes |
+| **Nibi** | Yes | Yes |
+| **Vulcan** | Yes | Yes |
+| **Killarney** | Yes | Yes |
+| **Narval** | No (httpproxy available but blocks `api.anthropic.com`) | No — Squid proxy returns 403 for Anthropic API |
+| **Rorqual** | No (httpproxy for eligible groups only) | Unlikely — same proxy infrastructure as Narval |
+| **tamIA** | No (httpproxy for eligible groups only) | Unlikely — test with `curl -v https://api.anthropic.com` |
+| **Trillium** | No | No |
+| **Cedar** | No | No |
+| **Graham** | No | No |
+
+**If your cluster has no internet on compute nodes:**
+- Use a cluster that does (Fir, Nibi, Vulcan, Killarney)
+- On Narval/Rorqual/tamIA: load the httpproxy module before launching Claude Code:
+  ```bash
+  module load httpproxy
+  claude
+  ```
+  **Check if httpproxy works for you** (run on a compute node):
+  ```bash
+  module load httpproxy
+  env | grep -i proxy                    # should show http_proxy/https_proxy pointing to squid
+  curl -s https://api.anthropic.com      # should get a response, not a timeout
+  ```
+  If the proxy loads and curl succeeds, you're good. Add `module load httpproxy` to your `~/.bashrc` on that cluster so it's automatic.
+
+  If it doesn't load or curl times out, your group may not be eligible — use a cluster with native internet (Fir, Nibi, Vulcan, Killarney) instead.
+- Contact [technical support](https://docs.alliancecan.ca/wiki/Technical_support) to request an internet exception if you have a justified need
+
 ## Workflow overview
 
 ```
