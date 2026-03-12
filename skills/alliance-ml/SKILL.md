@@ -23,6 +23,27 @@ ssh username@trillium.alliancecan.ca
 
 Cluster login nodes: `narval.alliancecan.ca`, `cedar.alliancecan.ca`, `trillium.alliancecan.ca`, `graham.alliancecan.ca`, `fir.alliancecan.ca`, `nibi.alliancecan.ca`, `rorqual.alliancecan.ca`
 
+### Connect IDE to a compute node (Claude Code, Cursor, VSCode, Codex)
+
+**Do NOT run these tools on login nodes — always use a compute node.** Banned on Fir and tamIA, should be avoided on all clusters.
+
+**Never request GPUs for IDE sessions** — these tools don't use GPU compute. Use minimal CPU resources (2 CPUs, 4G RAM).
+
+```bash
+# One-command workflow (recommended, prompts for time):
+cluster-claude narval def-yourpi                          # Claude Code
+cluster-claude killarney aip-yourpi                       # Killarney (aip- accounts)
+cluster-cursor narval def-yourpi                          # Cursor/VSCode
+
+# Manual workflow:
+ssh narval                                                 # 1. login node
+salloc --time=3:00:00 --mem=4G --account=def-yourpi        # 2. reserve compute node
+srun --pty bash                                            # 3. shell on compute node
+# Or from local: ssh -t nc10305 claude (Narval/Rorqual only, needs ProxyJump)
+```
+
+See `references/remote-development.md` for the `cluster-claude`/`cluster-cursor` scripts, SSH ProxyJump setup, per-cluster node prefixes, and Vector Institute workflow.
+
 ### Set up a Python environment
 
 ```bash
@@ -92,6 +113,17 @@ diskusage_report
 ## When to read reference files
 
 The sections below point to detailed reference files. Read the one that matches the user's task:
+
+### Remote development (Claude Code, Cursor, VSCode, Codex on clusters)
+Read `references/remote-development.md` when the user needs help with:
+- Connecting Claude Code, Cursor, VSCode, or Codex to a cluster
+- Why IDE/AI tools must NOT run on login nodes (banned on Fir, tamIA — avoid on all)
+- Setting up SSH ProxyJump to reach compute nodes from local IDE
+- The `salloc` → get node → connect workflow
+- Helper sbatch scripts (`remote-dev.sh`, `remote-dev-gpu.sh`) for long sessions
+- VSCode/Cursor remote machine settings (required on all clusters to reduce load)
+- Saving SLURM environment variables for IDE sessions
+- Vector Institute Killarney Jupyter/SSH workflow (vec-playbook)
 
 ### Getting started (account, SSH, MFA)
 Read `references/getting-started.md` when the user needs help with:
@@ -197,20 +229,22 @@ Read `references/best-practices.md` when the user needs help with:
 
 ## Common pitfalls
 
-1. **Using Conda**: Alliance clusters provide optimized wheels. Use `virtualenv` + `pip install --no-index`. Conda causes library conflicts and wastes quota.
+1. **Running VSCode/Claude Code/Cursor/Codex on login nodes**: These tools are resource-heavy and will degrade the shared login node for everyone. Explicitly banned on Fir and tamIA, but should be avoided on **all** clusters. Always request a compute node with `salloc` first, then connect your tool to that node. See `references/remote-development.md`.
 
-2. **Not using `--no-index`**: Without it, pip downloads from PyPI instead of using pre-built cluster wheels, which can cause CUDA mismatches.
+2. **Using Conda**: Alliance clusters provide optimized wheels. Use `virtualenv` + `pip install --no-index`. Conda causes library conflicts and wastes quota.
 
-3. **Forgetting `--account`**: If you belong to multiple allocations, you must specify `--account=def-yourpi`.
+3. **Not using `--no-index`**: Without it, pip downloads from PyPI instead of using pre-built cluster wheels, which can cause CUDA mismatches.
 
-4. **Storing datasets in `$HOME`**: Home is only 50 GB. Use `$PROJECT` for persistent datasets, `$SCRATCH` for temporary large files.
+4. **Forgetting `--account`**: If you belong to multiple allocations, you must specify `--account=def-yourpi`.
 
-5. **Reading many small files from `$PROJECT`/`$SCRATCH`**: Parallel filesystems are slow with many small files. Archive them with `tar` and extract to `$SLURM_TMPDIR` at job start.
+5. **Storing datasets in `$HOME`**: Home is only 50 GB. Use `$PROJECT` for persistent datasets, `$SCRATCH` for temporary large files.
 
-6. **Not checkpointing**: Jobs have wall-time limits. Save checkpoints regularly so you can resume. Split 3-day training into 3x 24h jobs.
+6. **Reading many small files from `$PROJECT`/`$SCRATCH`**: Parallel filesystems are slow with many small files. Archive them with `tar` and extract to `$SLURM_TMPDIR` at job start.
 
-7. **Requesting too much time**: Shorter jobs get scheduled faster. Request only what you need.
+7. **Not checkpointing**: Jobs have wall-time limits. Save checkpoints regularly so you can resume. Split 3-day training into 3x 24h jobs.
 
-8. **H100 clusters need torch >= 2.5.1**: On Trillium/Fir/Nibi, older PyTorch versions won't work with H100 GPUs.
+8. **Requesting too much time**: Shorter jobs get scheduled faster. Request only what you need.
 
-9. **Using Docker directly**: Docker is not available on Alliance HPC clusters (security reasons). Use Apptainer instead. You can convert Docker images to Apptainer SIF files: `apptainer build image.sif docker://...`
+9. **H100 clusters need torch >= 2.5.1**: On Trillium/Fir/Nibi, older PyTorch versions won't work with H100 GPUs.
+
+10. **Using Docker directly**: Docker is not available on Alliance HPC clusters (security reasons). Use Apptainer instead. You can convert Docker images to Apptainer SIF files: `apptainer build image.sif docker://...`
