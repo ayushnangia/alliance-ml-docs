@@ -36,8 +36,12 @@ Use `--no-index` to install from Alliance pre-built wheels:
 ```bash
 pip install --no-index torch torchvision torchaudio
 pip install --no-index numpy scipy pandas scikit-learn
-pip install --no-index transformers datasets tokenizers
+pip install --no-index transformers tokenizers
 pip install --no-index deepspeed
+
+# datasets and evaluate require the Arrow module loaded BEFORE install:
+module load gcc arrow
+pip install --no-index datasets evaluate
 ```
 
 ### Why `--no-index`?

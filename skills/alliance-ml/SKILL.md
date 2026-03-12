@@ -54,9 +54,15 @@ virtualenv --no-download ~/ENV
 source ~/ENV/bin/activate
 pip install --no-index --upgrade pip
 pip install --no-index torch torchvision
+
+# If using HuggingFace datasets/evaluate: load arrow BEFORE install
+module load gcc arrow
+pip install --no-index datasets evaluate
 ```
 
 The `--no-index` flag uses Alliance pre-built wheels (optimized for cluster hardware). Never use Conda/Anaconda on these clusters.
+
+**Important:** `datasets` and `evaluate` depend on `pyarrow`, which is provided by the `arrow` module. You must `module load gcc arrow` **before** installing them and every time you activate your virtualenv to use them.
 
 ### Submit a basic GPU job
 
@@ -250,3 +256,5 @@ Read `references/best-practices.md` when the user needs help with:
 9. **H100 clusters need torch >= 2.5.1**: On Trillium/Fir/Nibi, older PyTorch versions won't work with H100 GPUs.
 
 10. **Using Docker directly**: Docker is not available on Alliance HPC clusters (security reasons). Use Apptainer instead. You can convert Docker images to Apptainer SIF files: `apptainer build image.sif docker://...`
+
+11. **Forgetting `module load gcc arrow` for datasets/evaluate**: These packages depend on `pyarrow`, which is a system module — not a pip package. Load `gcc arrow` before installing and every time you use them, or you'll get `ModuleNotFoundError: No module named 'pyarrow'`.
