@@ -102,6 +102,22 @@ source ~/ENV/bin/activate
 torchrun --nproc_per_node=4 train.py
 ```
 
+## Test job support
+
+| Cluster | Min time for test jobs | Fast-start debug | Notes |
+|---------|----------------------|-----------------|-------|
+| Narval | 5 min | — | |
+| Fir | 5 min | — | |
+| Rorqual | 5 min | — | |
+| Graham | 5 min | — | |
+| Trillium | — | `debugjob` (up to 2h GPU) | No internet, read-only home/project in debugjob |
+| tamIA | 5 min | — | Must use full GPU nodes (4×H100 or 8×H200) |
+| Killarney | Not documented | — | Use short `--time` |
+| Vulcan | Not documented | — | Use short `--time` |
+| Nibi | Not documented | — | Use short `--time` |
+
+See `references/best-practices.md` for test job examples and a pre-flight checklist.
+
 ## How to choose
 
 1. **Need H100s?** → Trillium (most H100 nodes), or Fir/Nibi/Rorqual/Killarney

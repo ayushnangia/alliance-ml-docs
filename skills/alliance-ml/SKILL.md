@@ -64,6 +64,24 @@ The `--no-index` flag uses Alliance pre-built wheels (optimized for cluster hard
 
 **Important:** `datasets` and `evaluate` depend on `pyarrow`, which is provided by the `arrow` module. You must `module load gcc arrow` **before** installing them and every time you activate your virtualenv to use them.
 
+### Test before you train
+
+Always run a short test job before submitting long training runs. This catches module issues, data path errors, and GPU visibility problems before you burn hours of allocation.
+
+```bash
+# Quick GPU test (5-10 min) — works on most clusters
+sbatch --time=0:10:00 --gpus-per-node=h100:1 --cpus-per-task=6 \
+  --mem=32000M --account=def-yourpi train.sh
+
+# Trillium: use the dedicated debugjob command (fast-start, up to 2h for 1 GPU)
+debugjob -g 1
+
+# tamIA: whole GPU nodes only (4×H100 or 8×H200, no partial)
+sbatch --time=0:10:00 --gpus=h100:4 --account=aip-yourpi train.sh
+```
+
+Most clusters allow 5-minute minimum for test jobs (vs 1 hour for regular jobs). See `references/best-practices.md` for a pre-flight checklist.
+
 ### Submit a basic GPU job
 
 ```bash
@@ -228,6 +246,7 @@ Read `references/vllm.md` when the user needs help with:
 
 ### ML best practices
 Read `references/best-practices.md` when the user needs help with:
+- **Testing jobs before long runs** (test job examples, per-cluster policies, pre-flight checklist, `debugjob` on Trillium)
 - Job design (splitting training, right-sizing resources)
 - Data I/O optimization (small files problem, $SLURM_TMPDIR)
 - Checkpointing and auto-resubmission patterns

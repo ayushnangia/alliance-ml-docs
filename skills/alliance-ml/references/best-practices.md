@@ -1,5 +1,146 @@
 # ML Best Practices on Alliance Clusters
 
+## Test before you train
+
+**Always run a short test job before submitting a long training run.** A 5-10 minute GPU test can save hours of wasted allocation by catching issues early: wrong modules, broken data paths, CUDA mismatches, or missing dependencies.
+
+### Test job policies by cluster
+
+| Cluster | Min job time | Test job minimum | Fast-start option | Notes |
+|---------|-------------|-----------------|-------------------|-------|
+| **Narval** | 1 hour | **5 minutes** | — | No internet on compute nodes |
+| **Fir** | 1 hour | **5 minutes** | — | Has internet on compute nodes |
+| **Rorqual** | 1 hour | **5 minutes** | — | No internet on compute nodes |
+| **Graham** | 1 hour | **5 minutes** | — | |
+| **Trillium** | — | — | `debugjob` (fast-start) | Up to 2h for 1 GPU; no internet, read-only home/project |
+| **tamIA** | 1 hour | **5 minutes** | — | Must request full GPU nodes (4×H100 or 8×H200) |
+| **Killarney** | — | Not documented | — | PAICE cluster; test with short `--time` |
+| **Vulcan** | — | Not documented | — | PAICE cluster; test with short `--time` |
+| **Nibi** | — | Not documented | — | Test with short `--time` |
+
+### Quick test job examples
+
+**Standard clusters (Narval, Fir, Rorqual, Graham):**
+```bash
+#!/bin/bash
+#SBATCH --account=def-yourpi
+#SBATCH --gpus-per-node=h100:1
+#SBATCH --cpus-per-task=6
+#SBATCH --mem=32000M
+#SBATCH --time=0:10:00
+#SBATCH --output=test-%j.out
+
+module load python/3.11 gcc arrow
+source ~/ENV/bin/activate
+
+python train.py --max_steps=10 --data_dir $SLURM_TMPDIR/data
+```
+
+Or submit inline without a script:
+```bash
+sbatch --time=0:10:00 --gpus-per-node=h100:1 --cpus-per-task=6 \
+  --mem=32000M --account=def-yourpi --wrap="
+    module load python/3.11 gcc arrow && \
+    source ~/ENV/bin/activate && \
+    python train.py --max_steps=10
+  "
+```
+
+**Trillium (`debugjob` — fast-start, dedicated debug nodes):**
+```bash
+# CPU debug session (up to 60 min, 1 full node)
+debugjob
+
+# 1 GPU debug session (up to 120 min)
+debugjob -g 1
+
+# 2 nodes, 8 GPUs (up to 15 min)
+debugjob 2 -g 8
+```
+
+`debugjob` limitations on Trillium:
+- No internet access
+- Read-only access to `$HOME` and `$PROJECT` (can write to `$SCRATCH` and `$SLURM_TMPDIR`)
+- No job submissions from within a debugjob
+- Use `--export=ALL` to inherit your loaded modules
+
+**tamIA (PAICE — whole GPU nodes only):**
+```bash
+#!/bin/bash
+#SBATCH --account=aip-yourpi
+#SBATCH --gpus=h100:4
+#SBATCH --time=0:10:00
+#SBATCH --output=test-%j.out
+
+module load python/3.11 gcc arrow
+source ~/ENV/bin/activate
+
+python train.py --max_steps=10
+```
+Note: tamIA requires using all GPUs on allocated nodes (4 for H100, 8 for H200). Even test jobs burn a full node.
+
+**Killarney / Vulcan (PAICE):**
+```bash
+#!/bin/bash
+#SBATCH --account=aip-yourpi
+#SBATCH --gpus-per-node=l40s:1
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=32G
+#SBATCH --time=0:15:00
+#SBATCH --output=test-%j.out
+
+module load python/3.11 gcc arrow
+source ~/ENV/bin/activate
+
+python train.py --max_steps=10
+```
+
+### Pre-flight checklist
+
+Run these checks in your test job (add to the top of your training script or run interactively):
+
+```bash
+# 1. Can you see GPUs?
+nvidia-smi
+
+# 2. Does PyTorch see them?
+python -c "import torch; print(f'CUDA: {torch.cuda.is_available()}, GPUs: {torch.cuda.device_count()}')"
+
+# 3. Can you load your data?
+python -c "
+from datasets import load_dataset
+ds = load_dataset('my_dataset', split='train[:10]')
+print(f'Loaded {len(ds)} samples')
+"
+
+# 4. Does a forward pass work?
+python -c "
+import torch
+from transformers import AutoModelForCausalLM
+model = AutoModelForCausalLM.from_pretrained('./my_model', local_files_only=True)
+model.cuda()
+x = torch.randint(0, 1000, (1, 32)).cuda()
+with torch.no_grad():
+    out = model(x)
+print(f'Forward pass OK, output shape: {out.logits.shape}')
+"
+
+# 5. Are SLURM variables set?
+echo "TMPDIR: $SLURM_TMPDIR"
+echo "JOB ID: $SLURM_JOB_ID"
+echo "GPUs:   $SLURM_GPUS_ON_NODE"
+```
+
+### What to verify in your test
+
+| Check | Why | Fix |
+|-------|-----|-----|
+| `nvidia-smi` shows GPUs | GPU not allocated or wrong specifier | Check `--gpus-per-node` flag |
+| `torch.cuda.is_available()` | CUDA/PyTorch mismatch | H100 needs torch >= 2.5.1 |
+| Data loads without error | Wrong path or missing `module load gcc arrow` | Use `$SLURM_TMPDIR`, load arrow module |
+| Forward pass completes | OOM or model too large | Reduce batch size or use gradient checkpointing |
+| Checkpoint saves | Disk quota or permission issue | Save to `$SCRATCH`, check with `diskusage_report` |
+
 ## Job design
 
 ### Split long training into chunks
