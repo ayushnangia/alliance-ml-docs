@@ -82,6 +82,8 @@ sbatch --time=0:10:00 --gpus=h100:4 --account=aip-yourpi train.sh
 
 Most clusters allow 5-minute minimum for test jobs (vs 1 hour for regular jobs). See `references/best-practices.md` for a pre-flight checklist.
 
+After any job completes, run `seff <jobid>` to check actual time/memory usage and right-size future jobs. See `references/best-practices.md` for the full extrapolation method.
+
 ### Submit a basic GPU job
 
 ```bash

@@ -49,9 +49,12 @@ Status codes: `R` = Running, `PD` = Pending, `CG` = Completing
 
 ```bash
 scontrol show job JOBID        # Full job details
+seff JOBID                     # Efficiency report (time, memory, CPU usage)
 sacct -j JOBID                 # Accounting info after completion
 sacct -j JOBID --format=JobID,Elapsed,MaxRSS,MaxVMSize,TotalCPU,AllocGRES
 ```
+
+Use `seff` after every job to check time/memory efficiency and right-size future requests. Aim for: time efficiency > 50%, memory > 80%, CPU > 90%.
 
 ### Check why a job is pending
 

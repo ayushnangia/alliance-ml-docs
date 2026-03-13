@@ -141,6 +141,69 @@ echo "GPUs:   $SLURM_GPUS_ON_NODE"
 | Forward pass completes | OOM or model too large | Reduce batch size or use gradient checkpointing |
 | Checkpoint saves | Disk quota or permission issue | Save to `$SCRATCH`, check with `diskusage_report` |
 
+## Right-sizing job time
+
+Requesting the right `--time` saves allocation and gets your job scheduled faster. Use this workflow:
+
+### Step 1: Run a test job with generous time
+
+Submit a short training run (e.g., 10 steps) with a generous `--time` so it won't be killed early:
+
+```bash
+sbatch --time=1:00:00 --gpus-per-node=h100:1 --cpus-per-task=6 \
+  --mem=32000M --account=def-yourpi --wrap="
+    module load python/3.11 gcc arrow && \
+    source ~/ENV/bin/activate && \
+    python train.py --max_steps=10
+  "
+```
+
+### Step 2: Check actual usage with `seff`
+
+After the job completes, run `seff` to see how efficiently you used your allocation:
+
+```bash
+$ seff 12345678
+Job ID: 12345678
+Cluster: narval
+User/Group: anangia/anangia
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 6
+CPU Utilized: 00:04:30
+CPU Efficiency: 75.00% of 00:06:00 core-walltime
+Job Wall-clock time: 00:05:00
+Memory Utilized: 12.50 GB
+Memory Efficiency: 39.06% of 32.00 GB
+```
+
+**Efficiency targets** (from Alliance documentation):
+- **Time efficiency > 50%** — if your job uses < 50% of requested time, reduce `--time`
+- **Memory efficiency > 80%** — if using much less than requested, reduce `--mem`
+- **CPU efficiency > 90%** — if low, you may have too many `--cpus-per-task`
+
+### Step 3: Extrapolate to full training
+
+Calculate the time for your full run:
+
+```
+estimated_time = (wall_time / test_steps) * total_steps * 1.1
+```
+
+The 1.1 multiplier adds a 10% buffer for checkpointing overhead, evaluation steps, and variance.
+
+**Example:** 10 steps took 5 minutes → 10,000 steps ≈ `(5 / 10) * 10000 * 1.1` = 5,500 min ≈ 92h → split into 4 × 24h jobs with checkpointing.
+
+### Step 4: Refine after real jobs
+
+After your first real training job, use `sacct` to get precise measurements:
+
+```bash
+sacct -j JOBID --format=JobID,Elapsed,MaxRSS,TotalCPU,AllocGRES
+```
+
+Use these numbers to tighten your `--time` and `--mem` for subsequent runs. Tighter requests = faster scheduling.
+
 ## Job design
 
 ### Split long training into chunks
@@ -172,7 +235,7 @@ Shorter jobs get scheduled faster. Over-requesting wastes both your allocation a
 
 | Resource | How to right-size |
 |----------|------------------|
-| Time | Run a short test first, then extrapolate. Add 10-20% buffer. |
+| Time | Run a test job, measure with `seff`, extrapolate (see [Right-sizing job time](#right-sizing-job-time) below). |
 | GPUs | Start with 1 GPU. Only scale up if you've confirmed multi-GPU speedup. |
 | Memory | Check actual usage with `sstat -j $JOBID --format=MaxRSS`. Request 10-20% more. |
 | CPUs | 4-6 per GPU for data loading is usually enough. More rarely helps. |
